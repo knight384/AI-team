@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, Fragment, ReactNode, FormEvent, KeyboardEvent } from "react";
+
+import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { CanvasRevealEffect } from "../components/visuals/CanvasReveal";
@@ -10,7 +11,7 @@ function classNames(...inputs: (string | undefined | null | false)[]) {
 
 interface AnimatedNavLinkProps {
   href: string;
-  children?: ReactNode;
+  children?: React.ReactNode;
 }
 
 const AnimatedNavLink = ({ href, children }: AnimatedNavLinkProps) => {
@@ -29,15 +30,15 @@ const AnimatedNavLink = ({ href, children }: AnimatedNavLinkProps) => {
 };
 
 function MiniNavbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [headerShapeClass, setHeaderShapeClass] = useState('rounded-full');
-  const shapeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [headerShapeClass, setHeaderShapeClass] = React.useState('rounded-full');
+  const shapeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (shapeTimeoutRef.current) {
       clearTimeout(shapeTimeoutRef.current);
     }
@@ -79,11 +80,11 @@ function MiniNavbar() {
 
         <nav className="hidden sm:flex items-center space-x-4 sm:space-x-6 text-sm">
           {navLinksData.map((link) => (
-            <Fragment key={link.label}>
+            <React.Fragment key={link.label}>
               <AnimatedNavLink href={link.href}>
                 {link.label}
               </AnimatedNavLink>
-            </Fragment>
+            </React.Fragment>
           ))}
         </nav>
       </div>
@@ -93,16 +94,16 @@ function MiniNavbar() {
 
 export const SignInPage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [step, setStep] = useState<"email" | "code" | "success">("email");
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
-  const codeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [initialCanvasVisible, setInitialCanvasVisible] = useState(true);
-  const [reverseCanvasVisible, setReverseCanvasVisible] = useState(false);
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [step, setStep] = React.useState<"email" | "code" | "success">("email");
+  const [code, setCode] = React.useState(["", "", "", "", "", ""]);
+  const codeInputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
+  const [initialCanvasVisible, setInitialCanvasVisible] = React.useState(true);
+  const [reverseCanvasVisible, setReverseCanvasVisible] = React.useState(false);
 
-  const handleSignIn = (e: FormEvent) => {
+  const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
     if (email && password) {
       setStep("code");
@@ -110,7 +111,7 @@ export const SignInPage = () => {
   };
 
   // Focus first input when code screen appears
-  useEffect(() => {
+  React.useEffect(() => {
     if (step === "code") {
       setTimeout(() => {
         codeInputRefs.current[0]?.focus();
@@ -150,7 +151,7 @@ export const SignInPage = () => {
     }
   };
 
-  const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
       codeInputRefs.current[index - 1]?.focus();
     }

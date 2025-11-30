@@ -1,11 +1,12 @@
-import React, { useRef, useState, useEffect } from 'react';
+
+import * as React from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Stars, Float, Sparkles } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
 
 const AnimatedMesh = () => {
-    const mesh = useRef<THREE.Mesh>(null);
+    const mesh = React.useRef<THREE.Mesh>(null);
     
     useFrame((state) => {
         if(mesh.current) {
@@ -51,17 +52,17 @@ const SceneContent = () => {
 export const WebGPUScene = () => {
   const titleWords = 'Build Your Dreams'.split(' ');
   const subtitle = 'AI-powered creativity for the next generation.';
-  const [visibleWords, setVisibleWords] = useState(0);
-  const [subtitleVisible, setSubtitleVisible] = useState(false);
-  const [delays, setDelays] = useState<number[]>([]);
-  const [subtitleDelay, setSubtitleDelay] = useState(0);
+  const [visibleWords, setVisibleWords] = React.useState(0);
+  const [subtitleVisible, setSubtitleVisible] = React.useState(false);
+  const [delays, setDelays] = React.useState<number[]>([]);
+  const [subtitleDelay, setSubtitleDelay] = React.useState(0);
 
-  useEffect(() => {
+  React.useEffect(() => {
     setDelays(titleWords.map(() => Math.random() * 0.07));
     setSubtitleDelay(Math.random() * 0.1);
   }, [titleWords.length]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (visibleWords < titleWords.length) {
       const timeout = setTimeout(() => setVisibleWords(visibleWords + 1), 600);
       return () => clearTimeout(timeout);

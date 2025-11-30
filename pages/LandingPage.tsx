@@ -1,4 +1,5 @@
-import React from 'react';
+
+import * as React from 'react';
 import GlobeHero from '../components/visuals/GlobeHero';
 import { WebGPUScene } from '../components/visuals/WebGPUScene';
 import { motion } from 'framer-motion';

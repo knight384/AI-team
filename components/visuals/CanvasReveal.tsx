@@ -1,4 +1,5 @@
-import React, { useMemo, useRef } from "react";
+
+import * as React from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -82,7 +83,7 @@ const DotMatrix = ({
   shader = "",
   center = ["x", "y"],
 }: DotMatrixProps) => {
-  const uniforms = useMemo(() => {
+  const uniforms = React.useMemo(() => {
     let colorsArray = [
       colors[0],
       colors[0],
@@ -231,7 +232,7 @@ const ShaderMaterial = ({
   uniforms: Uniforms;
 }) => {
   const { size } = useThree();
-  const ref = useRef<THREE.Mesh>(null);
+  const ref = React.useRef<THREE.Mesh>(null);
 
   useFrame(({ clock }) => {
     if (!ref.current) return;
@@ -291,7 +292,7 @@ const ShaderMaterial = ({
     return preparedUniforms;
   };
 
-  const material = useMemo(() => {
+  const material = React.useMemo(() => {
     const materialObject = new THREE.ShaderMaterial({
       vertexShader: `
       precision mediump float;

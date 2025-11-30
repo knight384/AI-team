@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, Fragment } from 'react';
+
+import * as React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Activity, 
@@ -155,18 +156,18 @@ const RaceModeVisualizer = ({ isActive }: { isActive: boolean }) => {
 }
 
 export const Dashboard = () => {
-  const [agents, setAgents] = useState(INITIAL_AGENTS);
-  const [logs, setLogs] = useState<{ id: string; timestamp: string; agentId: string; message: string; type: string; }[]>(LOG_MOCK);
-  const [prompt, setPrompt] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isRaceMode, setIsRaceMode] = useState(false);
-  const logsEndRef = useRef<HTMLDivElement>(null);
+  const [agents, setAgents] = React.useState(INITIAL_AGENTS);
+  const [logs, setLogs] = React.useState<{ id: string; timestamp: string; agentId: string; message: string; type: string; }[]>(LOG_MOCK);
+  const [prompt, setPrompt] = React.useState('');
+  const [isProcessing, setIsProcessing] = React.useState(false);
+  const [isRaceMode, setIsRaceMode] = React.useState(false);
+  const logsEndRef = React.useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     scrollToBottom();
   }, [logs]);
 
@@ -290,9 +291,9 @@ export const Dashboard = () => {
             {/* Agent Status Grid */}
             <div className="col-span-12 lg:col-span-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 h-full content-start">
                 {agents.map((agent) => (
-                    <Fragment key={agent.id}>
+                    <React.Fragment key={agent.id}>
                         <AgentCard agent={agent} />
-                    </Fragment>
+                    </React.Fragment>
                 ))}
                 
                 {/* Real-time Metrics Chart */}

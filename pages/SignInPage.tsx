@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useRef, Fragment, FormEvent, KeyboardEvent, ReactNode } from "react";
+import React, { useState, useEffect, useRef, Fragment, ReactNode, FormEvent, KeyboardEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { CanvasRevealEffect } from "../components/visuals/CanvasReveal";

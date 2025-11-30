@@ -1,15 +1,14 @@
-
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Activity, 
   Shield, 
-  Code, 
-  MessageSquare, 
+  Cpu, 
   Play,
-  Database,
+  Zap,
   Terminal as TerminalIcon,
-  Cpu
+  CheckCircle,
+  GitBranch
 } from 'lucide-react';
 import { 
   XAxis, 
@@ -47,7 +46,11 @@ const LOG_MOCK = [
   { id: '3', timestamp: '10:00:03', agentId: 'DevOps', message: 'Kubernetes cluster ready.', type: 'success' },
 ];
 
-const AgentCard = ({ agent }: { agent: Agent }) => {
+interface AgentCardProps {
+    agent: Agent;
+}
+
+const AgentCard = ({ agent }: AgentCardProps) => {
   const getStatusColor = (status: string) => {
     switch(status) {
       case 'thinking': return 'text-yellow-400 border-yellow-400/50 bg-yellow-400/10 shadow-[0_0_15px_rgba(250,204,21,0.2)]';
@@ -106,11 +109,57 @@ const AgentCard = ({ agent }: { agent: Agent }) => {
   );
 };
 
+const RaceModeVisualizer = ({ isActive }: { isActive: boolean }) => {
+    return (
+        <AnimatePresence>
+            {isActive && (
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="col-span-12 lg:col-span-8 bg-[#130f24] rounded-2xl border border-[#9b87f5]/50 shadow-[0_0_30px_rgba(155,135,245,0.15)] p-6 mb-6"
+                >
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2 text-[#9b87f5]">
+                            <Zap className="animate-pulse fill-current" />
+                            <h3 className="font-bold text-lg">RACE MODE ACTIVE</h3>
+                        </div>
+                        <span className="text-xs bg-[#9b87f5]/20 text-[#9b87f5] px-2 py-1 rounded border border-[#9b87f5]/30">Multi-Model Ensemble</span>
+                    </div>
+                    <div className="space-y-4">
+                        {['GPT-4 Turbo', 'Claude 3.5 Sonnet', 'Llama 3 70B'].map((model, i) => (
+                            <div key={model} className="space-y-1">
+                                <div className="flex justify-between text-xs text-white/70">
+                                    <span>{model}</span>
+                                    <span className="font-mono">Generating...</span>
+                                </div>
+                                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                                    <motion.div 
+                                        initial={{ width: 0 }}
+                                        animate={{ width: '100%' }}
+                                        transition={{ duration: 2 + i, repeat: Infinity, ease: "linear" }}
+                                        className={`h-full bg-gradient-to-r ${
+                                            i === 0 ? 'from-green-500 to-green-300' :
+                                            i === 1 ? 'from-purple-500 to-purple-300' :
+                                            'from-blue-500 to-blue-300'
+                                        }`}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    );
+}
+
 export const Dashboard = () => {
   const [agents, setAgents] = useState(INITIAL_AGENTS);
   const [logs, setLogs] = useState<{ id: string; timestamp: string; agentId: string; message: string; type: string; }[]>(LOG_MOCK);
   const [prompt, setPrompt] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isRaceMode, setIsRaceMode] = useState(false);
   const logsEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -125,8 +174,7 @@ export const Dashboard = () => {
     if(!prompt) return;
     setIsProcessing(true);
     
-    // Simulate Workflow Steps
-    const addLog = (source: string, msg: string, type: 'info' | 'success' | 'warning' | 'error' = 'info') => {
+    const addLog = (source: string, msg: string, type: string = 'info') => {
         setLogs(prev => [...prev, { id: Date.now().toString(), timestamp: new Date().toLocaleTimeString(), agentId: source, message: msg, type }]);
     };
 
@@ -149,212 +197,180 @@ export const Dashboard = () => {
     // Step 3: Architect Completes, Engineers Race
     setTimeout(() => {
         setAgents(prev => prev.map(a => a.role === 'Architect' ? { ...a, status: 'completed', currentTask: undefined } : a));
-        addLog('Architect', 'System Design finalized. Architecture diagrams generated.', 'success');
+        addLog('Architect', 'System Design finalized. Architecture event published.', 'success');
         
-        setAgents(prev => prev.map(a => a.role === 'Engineer' ? { ...a, status: 'working', currentTask: 'Generating backend boilerplate (FastAPI)...' } : a));
-        addLog('Orchestrator', 'Initiating RACE MODE: 3 models generating code in parallel.', 'warning');
-     }, 7000);
+        setIsRaceMode(true);
+        addLog('Orchestrator', 'INITIATING RACE MODE: Parallel execution on 3 models.', 'warning');
+        setAgents(prev => prev.map(a => a.role === 'Engineer' ? { ...a, status: 'working', currentTask: 'RACE MODE: Generating Python backend via GPT-4...' } : a));
+    }, 6500);
 
-     // Step 4: Complete
-     setTimeout(() => {
+    // Step 4: Race Ends, QA Starts
+    setTimeout(() => {
+        setIsRaceMode(false);
+        addLog('Orchestrator', 'Race Complete. Winner: GPT-4 Turbo (98% accuracy)', 'success');
         setAgents(prev => prev.map(a => a.role === 'Engineer' ? { ...a, status: 'completed', currentTask: undefined } : a));
-        addLog('Engineer-1', 'Backend API implementation completed. Tests passing.', 'success');
-        
-        setAgents(prev => prev.map(a => a.role === 'QA' ? { ...a, status: 'working', currentTask: 'Running E2E tests and security scan...' } : a));
-        addLog('Orchestrator', 'Triggering QA Agent workflow.', 'info');
-     }, 10500);
 
-     // Step 5: Finish
-     setTimeout(() => {
+        setAgents(prev => prev.map(a => a.role === 'QA' ? { ...a, status: 'working', currentTask: 'Running Unit Tests and Security Scan...' } : a));
+        addLog('QA-Bot', 'Starting automated test suite...', 'info');
+    }, 10000);
+
+    // Step 5: QA Completes, DevOps Deploys
+    setTimeout(() => {
         setAgents(prev => prev.map(a => a.role === 'QA' ? { ...a, status: 'completed', currentTask: undefined } : a));
-        addLog('QA-Bot', 'All tests passed. Security score: 98/100.', 'success');
-        setAgents(prev => prev.map(a => a.role === 'DevOps' ? { ...a, status: 'working', currentTask: 'Deploying to staging environment...' } : a));
-     }, 14000);
-     
-     setTimeout(() => {
-        setAgents(prev => prev.map(a => a.role === 'DevOps' ? { ...a, status: 'completed' } : a));
-        addLog('DevOps-Bot', 'Deployment successful. URL: https://staging.project-x.com', 'success');
+        addLog('QA-Bot', 'All tests passed. Coverage: 92%.', 'success');
+        
+        setAgents(prev => prev.map(a => a.role === 'DevOps' ? { ...a, status: 'working', currentTask: 'Generating Kubernetes Manifests and Helm Charts...' } : a));
+        addLog('DevOps-Bot', 'Building Docker images...', 'info');
+    }, 13000);
+
+    // Final
+    setTimeout(() => {
+        setAgents(prev => prev.map(a => a.role === 'DevOps' ? { ...a, status: 'completed', currentTask: undefined } : a));
+        addLog('System', 'Project Deployed Successfully. Access at https://staging.api.dev', 'success');
         setIsProcessing(false);
-     }, 17000);
+    }, 16000);
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0613] text-white font-sans selection:bg-[#9b87f5]/30">
+    <div className="min-h-screen bg-[#0a0613] text-white font-sans selection:bg-[#9b87f5]/30 p-6 pt-24 pb-10">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <header className="border-b border-white/5 bg-[#0a0613]/50 backdrop-blur-md sticky top-0 z-50">
-           <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-              <div className="flex items-center gap-2 font-bold text-xl">
-                 <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#9b87f5] to-[#5b47a5] flex items-center justify-center">
-                    <Cpu size={18} className="text-white" />
-                 </div>
-                 AdvancedAI <span className="text-[#9b87f5]">DevTeam</span>
-              </div>
-              <div className="flex items-center gap-4">
-                 <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                    System Operational
-                 </div>
-                 <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center border border-white/5">
-                    <span className="text-xs font-bold">JD</span>
-                 </div>
-              </div>
-           </div>
+        <header className="flex justify-between items-end pb-6 border-b border-white/5">
+          <div>
+            <h1 className="text-3xl font-light tracking-tight">Mission Control</h1>
+            <p className="text-white/40 mt-1 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                System Operational
+            </p>
+          </div>
+          <div className="flex gap-4">
+             <div className="bg-[#151520] px-4 py-2 rounded-lg border border-white/5 flex flex-col items-center">
+                <span className="text-[10px] text-white/40 uppercase">Active Agents</span>
+                <span className="text-xl font-bold">{agents.filter(a => a.status !== 'idle').length}</span>
+             </div>
+             <div className="bg-[#151520] px-4 py-2 rounded-lg border border-white/5 flex flex-col items-center">
+                <span className="text-[10px] text-white/40 uppercase">Projects Built</span>
+                <span className="text-xl font-bold">142</span>
+             </div>
+          </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-12 gap-6 h-[calc(100vh-4rem)]">
-            {/* Left Column: Agents & Metrics */}
-            <div className="col-span-12 lg:col-span-8 flex flex-col gap-6 h-full overflow-hidden">
-                {/* Agent Fleet */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 h-40 shrink-0">
-                   {agents.map(agent => (
-                      <Fragment key={agent.id}>
+        {/* Input Section */}
+        <section className="bg-[#151520] p-1 rounded-2xl border border-white/10 shadow-xl max-w-3xl mx-auto">
+            <div className="relative flex items-center">
+                <input 
+                    type="text" 
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder="Describe your software project (e.g., 'A Kanban board with real-time collaboration')..."
+                    className="w-full bg-transparent border-none text-white px-6 py-4 focus:ring-0 placeholder:text-white/20 text-lg"
+                    onKeyDown={(e) => e.key === 'Enter' && handleStart()}
+                />
+                <button 
+                    onClick={handleStart}
+                    disabled={isProcessing || !prompt}
+                    className={`mr-2 p-3 rounded-xl transition-all ${isProcessing || !prompt ? 'bg-white/5 text-white/20' : 'bg-[#9b87f5] text-white hover:shadow-[0_0_20px_rgba(155,135,245,0.4)]'}`}
+                >
+                    <Play size={20} fill="currentColor" className={isProcessing ? 'opacity-0' : ''} />
+                    {isProcessing && <div className="absolute inset-0 m-auto w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
+                </button>
+            </div>
+        </section>
+
+        {/* Race Mode Visualization */}
+        <div className="grid grid-cols-12 gap-6">
+             <div className="col-span-12">
+                 <RaceModeVisualizer isActive={isRaceMode} />
+             </div>
+        </div>
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-12 gap-6 h-[600px]">
+            
+            {/* Agent Status Grid */}
+            <div className="col-span-12 lg:col-span-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 h-full content-start">
+                {agents.map((agent) => (
+                    <Fragment key={agent.id}>
                         <AgentCard agent={agent} />
-                      </Fragment>
-                   ))}
-                </div>
-
-                {/* Metrics & Main View */}
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 min-h-0">
-                    <div className="bg-[#130f24] rounded-2xl border border-white/5 p-6 flex flex-col">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="font-semibold flex items-center gap-2">
-                               <Activity size={18} className="text-[#9b87f5]" />
-                               Real-time Performance
-                            </h3>
-                            <select className="bg-black/20 border border-white/10 rounded-lg text-xs px-2 py-1 outline-none">
-                               <option>Last 30 mins</option>
-                            </select>
-                        </div>
-                        <div className="flex-1 w-full min-h-0">
-                           <ResponsiveContainer width="100%" height="100%">
-                              <AreaChart data={METRICS_DATA}>
-                                 <defs>
+                    </Fragment>
+                ))}
+                
+                {/* Real-time Metrics Chart */}
+                <div className="col-span-1 md:col-span-2 lg:col-span-3 bg-[#151520] rounded-xl border border-white/5 p-4 mt-auto">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Activity className="text-[#9b87f5] w-4 h-4" />
+                        <h3 className="text-xs uppercase font-bold text-white/40">System Performance</h3>
+                    </div>
+                    <div className="h-48 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={METRICS_DATA}>
+                                <defs>
                                     <linearGradient id="colorTokens" x1="0" y1="0" x2="0" y2="1">
-                                       <stop offset="5%" stopColor="#9b87f5" stopOpacity={0.3}/>
-                                       <stop offset="95%" stopColor="#9b87f5" stopOpacity={0}/>
+                                        <stop offset="5%" stopColor="#9b87f5" stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor="#9b87f5" stopOpacity={0}/>
                                     </linearGradient>
-                                 </defs>
-                                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                                 <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{fill: '#ffffff50', fontSize: 10}} />
-                                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#ffffff50', fontSize: 10}} />
-                                 <Tooltip 
-                                    contentStyle={{backgroundColor: '#1a1625', borderColor: '#ffffff10', borderRadius: '8px'}}
-                                    itemStyle={{color: '#fff'}}
-                                 />
-                                 <Area type="monotone" dataKey="tokens" stroke="#9b87f5" strokeWidth={2} fillOpacity={1} fill="url(#colorTokens)" />
-                              </AreaChart>
-                           </ResponsiveContainer>
-                        </div>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                                <XAxis dataKey="time" stroke="rgba(255,255,255,0.2)" fontSize={10} />
+                                <YAxis stroke="rgba(255,255,255,0.2)" fontSize={10} />
+                                <Tooltip 
+                                    contentStyle={{ backgroundColor: '#0a0613', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                                    itemStyle={{ color: '#fff' }}
+                                />
+                                <Area type="monotone" dataKey="tokens" stroke="#9b87f5" fillOpacity={1} fill="url(#colorTokens)" />
+                            </AreaChart>
+                        </ResponsiveContainer>
                     </div>
-
-                    <div className="bg-[#130f24] rounded-2xl border border-white/5 p-6 flex flex-col">
-                        <h3 className="font-semibold flex items-center gap-2 mb-6">
-                           <Shield size={18} className="text-green-400" />
-                           Security & Quality
-                        </h3>
-                        <div className="space-y-6">
-                           <div>
-                              <div className="flex justify-between text-sm mb-2">
-                                 <span className="text-white/60">Code Quality Score</span>
-                                 <span className="font-mono text-[#9b87f5]">96/100</span>
-                              </div>
-                              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                                 <div className="h-full bg-gradient-to-r from-[#9b87f5] to-[#7e61e7] w-[96%]" />
-                              </div>
-                           </div>
-                           <div>
-                              <div className="flex justify-between text-sm mb-2">
-                                 <span className="text-white/60">Test Coverage</span>
-                                 <span className="font-mono text-green-400">88%</span>
-                              </div>
-                              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                                 <div className="h-full bg-green-400 w-[88%]" />
-                              </div>
-                           </div>
-                           <div>
-                              <div className="flex justify-between text-sm mb-2">
-                                 <span className="text-white/60">Security Vulnerabilities</span>
-                                 <span className="font-mono text-white">0 Critical</span>
-                              </div>
-                              <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                                 <div className="h-full bg-white/20 w-full" />
-                              </div>
-                           </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Input Area */}
-                <div className="h-24 bg-[#130f24] rounded-2xl border border-white/5 p-2 flex gap-2 shrink-0">
-                    <textarea 
-                       value={prompt}
-                       onChange={(e) => setPrompt(e.target.value)}
-                       placeholder="Describe the software you want to build..." 
-                       className="flex-1 bg-transparent border-none resize-none focus:ring-0 p-3 text-sm placeholder:text-white/20"
-                       disabled={isProcessing}
-                    />
-                    <button 
-                       onClick={handleStart}
-                       disabled={!prompt || isProcessing}
-                       className={`px-6 rounded-xl font-medium transition-all flex items-center gap-2 ${
-                          !prompt || isProcessing 
-                          ? 'bg-white/5 text-white/20 cursor-not-allowed' 
-                          : 'bg-[#9b87f5] text-white hover:bg-[#8b77e5] shadow-lg shadow-[#9b87f5]/20'
-                       }`}
-                    >
-                       {isProcessing ? (
-                          <Activity className="animate-spin" size={20} />
-                       ) : (
-                          <>
-                             <Play size={20} fill="currentColor" />
-                             Start Build
-                          </>
-                       )}
-                    </button>
                 </div>
             </div>
 
-            {/* Right Column: Logs/Terminal */}
-            <div className="col-span-12 lg:col-span-4 bg-[#0f0b1e] rounded-2xl border border-white/10 flex flex-col overflow-hidden h-full">
-               <div className="p-4 border-b border-white/5 bg-white/5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                     <TerminalIcon size={16} className="text-white/40" />
-                     <span className="text-sm font-mono text-white/60">System Logs</span>
-                  </div>
-                  <div className="flex gap-1.5">
-                     <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50" />
-                     <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
-                     <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50" />
-                  </div>
-               </div>
-               
-               <div className="flex-1 overflow-y-auto p-4 font-mono text-xs space-y-3 custom-scrollbar">
-                  {logs.map((log) => (
-                     <div key={log.id} className="flex gap-3 animate-fade-in">
-                        <span className="text-white/30 shrink-0">{log.timestamp}</span>
-                        <div className="flex-1">
-                           <span className={`font-bold mr-2 ${
-                              log.agentId === 'System' ? 'text-blue-400' :
-                              log.agentId === 'Error' ? 'text-red-400' :
-                              'text-[#9b87f5]'
-                           }`}>
-                              [{log.agentId}]
-                           </span>
-                           <span className={
-                              log.type === 'error' ? 'text-red-400' :
-                              log.type === 'success' ? 'text-green-400' :
-                              log.type === 'warning' ? 'text-yellow-400' :
-                              'text-white/70'
-                           }>
-                              {log.message}
-                           </span>
-                        </div>
-                     </div>
-                  ))}
-                  <div ref={logsEndRef} />
-               </div>
+            {/* Terminal / Logs */}
+            <div className="col-span-12 lg:col-span-4 bg-[#0d0d11] rounded-xl border border-white/10 flex flex-col overflow-hidden h-full shadow-2xl">
+                <div className="bg-[#1a1a24] px-4 py-3 flex items-center justify-between border-b border-white/5">
+                    <div className="flex items-center gap-2">
+                        <TerminalIcon className="w-4 h-4 text-white/40" />
+                        <span className="text-xs font-mono text-white/60">devteam-cli --watch</span>
+                    </div>
+                    <div className="flex gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/50"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/50"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-green-500/20 border border-green-500/50"></div>
+                    </div>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 font-mono text-xs space-y-3 custom-scrollbar">
+                    {logs.map((log) => (
+                        <motion.div 
+                            key={log.id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="flex gap-3"
+                        >
+                            <span className="text-white/30 shrink-0 select-none">[{log.timestamp}]</span>
+                            <div className="flex flex-col">
+                                <span className={`font-bold mb-0.5 ${
+                                    log.agentId === 'System' ? 'text-blue-400' :
+                                    log.agentId === 'Orchestrator' ? 'text-purple-400' :
+                                    log.agentId === 'DevOps' ? 'text-orange-400' :
+                                    'text-green-400'
+                                }`}>
+                                    {log.agentId}
+                                </span>
+                                <span className={`${
+                                    log.type === 'error' ? 'text-red-400' :
+                                    log.type === 'success' ? 'text-green-300' :
+                                    log.type === 'warning' ? 'text-yellow-300' :
+                                    'text-white/70'
+                                }`}>
+                                    {log.message}
+                                </span>
+                            </div>
+                        </motion.div>
+                    ))}
+                    <div ref={logsEndRef} />
+                </div>
             </div>
-        </main>
+        </div>
+      </div>
     </div>
   );
 };

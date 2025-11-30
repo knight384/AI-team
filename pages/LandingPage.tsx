@@ -1,5 +1,5 @@
 
-import * as React from 'react';
+import React from 'react';
 import GlobeHero from '../components/visuals/GlobeHero';
 import { WebGPUScene } from '../components/visuals/WebGPUScene';
 import { motion } from 'framer-motion';
@@ -16,7 +16,7 @@ export const LandingPage = () => {
       <GlobeHero />
 
       {/* Features Section based on PDF */}
-      <section className="py-24 px-6 max-w-7xl mx-auto">
+      <section className="py-24 px-6 max-w-7xl mx-auto" id="features">
         <div className="text-center mb-16">
            <h2 className="text-3xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-white/50">Enterprise Features</h2>
            <p className="text-white/60 max-w-2xl mx-auto">Better than MGX. Built for production-ready code generation.</p>

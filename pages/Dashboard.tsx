@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Activity, 
@@ -46,7 +46,7 @@ const LOG_MOCK = [
   { id: '3', timestamp: '10:00:03', agentId: 'DevOps', message: 'Kubernetes cluster ready.', type: 'success' },
 ];
 
-const AgentCard = ({ agent }: { agent: Agent }) => {
+const AgentCard: React.FC<{ agent: Agent }> = ({ agent }) => {
   const getStatusColor = (status: string) => {
     switch(status) {
       case 'thinking': return 'text-yellow-400 border-yellow-400/50 bg-yellow-400/10 shadow-[0_0_15px_rgba(250,204,21,0.2)]';

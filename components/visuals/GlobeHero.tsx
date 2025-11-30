@@ -74,7 +74,7 @@ export default function GlobeHero() {
         <motion.div
           className="relative"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
         >
           <div className="w-full flex h-40 md:h-64 relative overflow-hidden pointer-events-none">

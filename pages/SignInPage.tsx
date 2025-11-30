@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+
+import React, { useState, useEffect, useRef, Fragment, FormEvent, KeyboardEvent, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { CanvasRevealEffect } from "../components/visuals/CanvasReveal";
@@ -10,10 +11,10 @@ function classNames(...inputs: (string | undefined | null | false)[]) {
 
 interface AnimatedNavLinkProps {
   href: string;
-  children: React.ReactNode;
+  children?: ReactNode;
 }
 
-const AnimatedNavLink: React.FC<AnimatedNavLinkProps> = ({ href, children }) => {
+const AnimatedNavLink = ({ href, children }: AnimatedNavLinkProps) => {
   const defaultTextColor = 'text-gray-300';
   const hoverTextColor = 'text-white';
   const textSizeClass = 'text-sm';
@@ -79,9 +80,11 @@ function MiniNavbar() {
 
         <nav className="hidden sm:flex items-center space-x-4 sm:space-x-6 text-sm">
           {navLinksData.map((link) => (
-            <AnimatedNavLink key={link.label} href={link.href}>
-              {link.label}
-            </AnimatedNavLink>
+            <Fragment key={link.label}>
+              <AnimatedNavLink href={link.href}>
+                {link.label}
+              </AnimatedNavLink>
+            </Fragment>
           ))}
         </nav>
       </div>
@@ -100,7 +103,7 @@ export const SignInPage = () => {
   const [initialCanvasVisible, setInitialCanvasVisible] = useState(true);
   const [reverseCanvasVisible, setReverseCanvasVisible] = useState(false);
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = (e: FormEvent) => {
     e.preventDefault();
     if (email && password) {
       setStep("code");
@@ -148,7 +151,7 @@ export const SignInPage = () => {
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
       codeInputRefs.current[index - 1]?.focus();
     }

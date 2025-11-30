@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+
+import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Activity, 
@@ -46,7 +47,7 @@ const LOG_MOCK = [
   { id: '3', timestamp: '10:00:03', agentId: 'DevOps', message: 'Kubernetes cluster ready.', type: 'success' },
 ];
 
-const AgentCard: React.FC<{ agent: Agent }> = ({ agent }) => {
+const AgentCard = ({ agent }: { agent: Agent }) => {
   const getStatusColor = (status: string) => {
     switch(status) {
       case 'thinking': return 'text-yellow-400 border-yellow-400/50 bg-yellow-400/10 shadow-[0_0_15px_rgba(250,204,21,0.2)]';
@@ -206,7 +207,9 @@ export const Dashboard = () => {
                 {/* Agent Fleet */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 h-40 shrink-0">
                    {agents.map(agent => (
-                      <AgentCard key={agent.id} agent={agent} />
+                      <Fragment key={agent.id}>
+                        <AgentCard agent={agent} />
+                      </Fragment>
                    ))}
                 </div>
 

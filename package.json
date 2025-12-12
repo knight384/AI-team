@@ -1,28 +1,20 @@
 {
-  "name": "advancedai-devteam",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "name": "fullstack-app",
+  "version": "1.0.0",
+  "description": "Full-stack application with React frontend and FastAPI backend",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "echo 'Use: cd frontend && npm run dev for frontend, cd backend && source venv/bin/activate && uvicorn app.main:app --reload for backend'",
+    "build": "cd frontend && npm run build",
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && source venv/bin/activate && uvicorn app.main:app --reload",
+    "setup": "npm run install:frontend && npm run install:backend && echo 'Setup complete! Check README.md for usage instructions.'",
+    "docker:up": "docker compose up -d postgres redis",
+    "docker:down": "docker compose down",
+    "migrate": "cd backend && source venv/bin/activate && alembic upgrade head"
   },
-  "dependencies": {
-    "lucide-react": "^0.555.0",
-    "react": "18.3.1",
-    "framer-motion": "^12.23.24",
-    "react-dom": "18.3.1",
-    "three": "^0.181.2",
-    "@react-three/fiber": "^8.16.8",
-    "@react-three/drei": "^9.108.3",
-    "recharts": "^2.12.7",
-    "react-router-dom": "^6.23.1"
-  },
-  "devDependencies": {
-    "@types/node": "^22.14.0",
-    "@vitejs/plugin-react": "^5.0.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
-  }
+  "keywords": ["react", "fastapi", "fullstack"],
+  "author": "",
+  "license": "ISC"
 }
